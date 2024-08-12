@@ -192,7 +192,7 @@ namespace SomTodayProxy
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls("https://192.168.178.22:5001", "http://192.168.178.22:5000");
+                    webBuilder.UseUrls("https://localhost:5001", "http://localhost:5000");
                 });
     }
 }
