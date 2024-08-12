@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 
-namespace SomTodayProxy
+namespace SomtodayProxy
 {
     
     /*
@@ -23,9 +23,9 @@ namespace SomTodayProxy
     public class Startup
     {
         //keep a list of every current user trying to authenticate
-        List<UserAuthenticatingModel> users = new List<UserAuthenticatingModel>();
+        List<UserAuthenticatingModel> users = new();
 
-        private string mainPage = "SomToday Proxy is running!\n" +
+        private string mainPage = "SomToday App Proxy (STAP) is running!\n" +
                                   "\n" +
                                   "Dankjewel Micha (https://micha.ga & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!\n" +
                                   "Dit is een proxy die requests doorstuurt naar SomToday en de responses terugstuurt naar de client.\n" +
@@ -191,6 +191,11 @@ namespace SomTodayProxy
             var loginRequestModel = users.FirstOrDefault(u => u.vanityUrl == "somtoday.kronk.tech/" + vanityUrl);
             if (loginRequestModel != null)
             {
+                model.vanityUrl = loginRequestModel.vanityUrl;
+                model.callbackUrl = loginRequestModel.callbackUrl;
+                model.user = loginRequestModel.user;
+                model.expires = loginRequestModel.expires;
+                
                 //remove the user from the list
                 users.Remove(loginRequestModel);
                 
@@ -200,8 +205,10 @@ namespace SomTodayProxy
                 await client.PostAsync(loginRequestModel.callbackUrl, content);
             }
             
-            context.Response.StatusCode = 200;
-            await context.Response.WriteAsync("{\"ok\": true}");
+            //send the model to the callbackUrl
+            var client2 = new HttpClient();
+            var content2 = new StringContent("{\"error\": \"Failed to authenticate user, you can discard the login attempt at you side, I sure as hell deleted it on my side\"}");
+            await client2.PostAsync(loginRequestModel.callbackUrl, content2);
         }
 
         private async Task SendProxyRequestAndHandleResponse(HttpContext context, HttpClient httpClient, HttpRequestMessage proxyRequest)
@@ -279,6 +286,12 @@ namespace SomTodayProxy
         public string code_verifier { get; set; }
         public string client_id { get; set; }
         public string claims { get; set; }
+        
+        //send by client
+        public string user { get; set; }
+        public string vanityUrl { get; set; }
+        public DateTime expires { get; set; }
+        public string callbackUrl { get; set; }
     }
     
     public class UserAuthenticatingModel
