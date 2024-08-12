@@ -1,131 +1,52 @@
-# SomTodayProxy
+## Overview of the SomTodayProxy Application
 
-SomTodayProxy is an ASP.NET Core proxy application designed to facilitate authentication with SomToday by forwarding requests to SomToday's API and redirecting responses back to the client. This application enables the interception and management of responses, such as authentication tokens, from SomToday.
+### Summary
+The **SomTodayProxy** is a proxy server designed to mediate authentication requests between clients and the SomToday API. It allows users to authenticate through SomToday's official service while capturing and handling responses, particularly tokens, which can then be used by the client application. The proxy effectively hides the complexities of interacting with SomToday’s API, allowing clients to authenticate users without dealing directly with the API.
 
-### Acknowledgements
+### Key Components
+- **`Startup` Class**: This is the main configuration class for the application. It sets up services, middleware, and endpoint routing for handling various types of HTTP requests.
+- **`Program` Class**: This class is the entry point of the application. It configures and starts the web server.
+- **Data Models**: The application uses two primary data models:
+    - **`SomtodayAuthenticatieModel`**: Represents the data structure required for SomToday's OAuth2 token requests.
+    - **`UserAuthenticatingModel`**: Represents users attempting to authenticate, including their `vanityUrl`, expiration time, and callback URL.
 
-Special thanks to [Micha](https://micha.ga) ([GitHub: FurriousFox](https://github.com/FurriousFox)) for discovering the original method of authenticating users with SomToday. This project wouldn't have been possible without their discovery and guidance.
+### Endpoints Overview
 
-## Table of Contents
+The proxy server exposes several key endpoints to interact with clients and the SomToday API:
 
-- [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Running the Application](#running-the-application)
-- [Usage](#usage)
-    - [How It Works](#how-it-works)
-    - [Endpoints](#endpoints)
-    - [Proxy Mechanism](#proxy-mechanism)
-- [Configuration](#configuration)
-    - [Environment Settings](#environment-settings)
-    - [HTTPS and HTTP](#https-and-http)
-- [Code Overview](#code-overview)
-    - [Startup Class](#startup-class)
-    - [Program Class](#program-class)
-    - [Request Handling](#request-handling)
-- [Contributing](#contributing)
-- [License](#license)
+1. **`GET /`**:
+    - **Description**: The root endpoint of the server. It returns a simple message indicating that the proxy is running.
+    - **Response**: A plain text message detailing the purpose of the proxy and crediting the contributor who helped discover the authentication method.
 
-## Getting Started
+2. **`GET /.well-known/openid-configuration`**:
+    - **Description**: This endpoint forwards a request to the SomToday OpenID configuration URL. It fetches the OpenID Connect configuration from SomToday's servers and returns it to the client.
+    - **Response**: JSON content containing OpenID Connect metadata for SomToday.
 
-### Prerequisites
+3. **`GET /requestUrl`**:
+    - **Description**: This endpoint initiates a new authentication request for a user. The client provides a `user` identifier and a `callbackUrl` to which the token should be sent after authentication.
+    - **Parameters**:
+        - `user`: The identifier of the user requesting authentication.
+        - `callbackUrl`: The URL to which the authentication token will be sent upon successful login.
+    - **Response**: A JSON object containing the `vanityUrl` (a unique URL identifier) and other relevant information for the authentication session.
 
-- [.NET 6.0 SDK or later](https://dotnet.microsoft.com/download)
-- A working knowledge of ASP.NET Core
-- Basic understanding of proxy servers
+4. **Fallback Endpoint** (`MapFallback`):
+    - **Description**: This is a catch-all endpoint for any requests that don't match the predefined routes. It acts as a proxy for all other requests, forwarding them to SomToday’s API while handling specific OAuth2 flows and token retrieval.
+    - **Behavior**:
+        - **OAuth2 Authorization (`/oauth2/authorize`)**: Redirects the request to SomToday’s authorization endpoint.
+        - **OAuth2 Token (`/oauth2/token`)**: Handles token requests by capturing and processing the token, then forwarding it to the client's callback URL.
 
-### Installation
+### Detailed Endpoint Operations
 
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/yourusername/SomTodayProxy.git
-   cd SomTodayProxy
-   ```
+- **Handling OpenID Configuration**:
+    - The `HandleOpenIdConfiguration` method sends a GET request to the SomToday OpenID Connect configuration endpoint, retrieves the configuration JSON, and returns it directly to the client. This allows the proxy to seamlessly integrate with clients expecting standard OpenID Connect metadata.
 
-2. **Install the dependencies:**
-   Restore the .NET packages by running:
-   ```sh
-   dotnet restore
-   ```
+- **Initiating Authentication Requests**:
+    - The `RequestLoginUrl` method processes requests for initiating user authentication. It generates a unique `vanityUrl` for each user, which is later used to track and manage authentication sessions. If the necessary parameters (`user` and `callbackUrl`) are not provided, the server responds with a `400 Bad Request` status, indicating missing parameters.
 
-### Running the Application
+- **Proxying Requests and Handling Responses**:
+    - The `HandleProxyRequest` method is the heart of the proxy functionality. It forwards requests to either SomToday's API or login endpoint, depending on the request path. For OAuth2 token requests, it captures the token and forwards it to the client’s specified callback URL.
+    - The `SendProxyRequestAndHandleResponse` method sends the proxied request and processes the response, ensuring that headers, including CORS headers, are correctly handled to maintain security and compatibility with modern web clients.
 
-1. **Build the application:**
-   ```sh
-   dotnet build
-   ```
+### Conclusion
 
-2. **Run the application:**
-   You can run the application in either `Development` or `Production` mode:
-
-   ```sh
-   dotnet run
-   ```
-
-   This will start the server at the specified URLs (default: `https://localhost:5001` and `http://localhost:5000`).
-
-* You do need to make sure that you have a vps (or cloudflare tunnel etc.) that points a domain to the server. So for example create a cloudflare tunnel that points your domain to `localhost:5001` and `localhost:5000` and then you can use the domain to access the proxy.
-
-## Usage
-
-### How It Works
-
-SomTodayProxy functions as a middleman between the client and SomToday's API. It forwards HTTP requests from the client to SomToday and then returns the response from SomToday back to the client. This process allows the application to manage authentication tokens and other sensitive data, ensuring that the authentication process is handled securely.
-
-### Endpoints
-
-- **`GET /`**: Returns a simple message indicating that the proxy is running.
-
-- **`GET /.well-known/openid-configuration`**: Forwards the OpenID configuration request to SomToday's API and returns the response.
-
-- **Fallback (`/*`)**: Forwards all other requests to the appropriate SomToday endpoint based on the request path.
-
-### Proxy Mechanism
-
-1. **Request Forwarding**: Incoming requests are forwarded to the appropriate SomToday API endpoint.
-
-2. **Response Handling**: The proxy handles responses, including setting appropriate CORS headers and managing specific paths like `/oauth2/token` and `/oauth2/authorize`.
-
-3. **Custom Token Handling**: The proxy intercepts and logs OAuth2 token requests, returning a custom response indicating successful authentication.
-
-## Configuration
-
-### Environment Settings
-
-The application uses environment-based configuration to set up the development environment. The `Configure` method in the `Startup` class enables the developer exception page during development.
-
-### HTTPS and HTTP
-
-The application is configured to run on both HTTPS (port 5001) and HTTP (port 5000) with specific URLs defined in the `Program` class. The `UseHttpsRedirection` service ensures that all HTTP requests are redirected to HTTPS.
-
-## Code Overview
-
-### Startup Class
-
-The `Startup` class is responsible for setting up the application services and middleware. Key components include:
-
-- **`ConfigureServices`**: Adds HTTP Client services and sets up HTTPS redirection.
-- **`Configure`**: Configures middleware for handling forwarded headers, routing, and endpoints.
-
-### Program Class
-
-The `Program` class contains the `Main` method, which is the entry point of the application. It configures the web host and sets the URLs on which the server will listen.
-
-### Request Handling
-
-Key methods in the `Startup` class handle the core proxy functionality:
-
-- **`HandleOpenIdConfiguration`**: Forwards the OpenID configuration request.
-- **`HandleProxyRequest`**: Handles all other proxy requests, including special handling for token and authorization endpoints.
-- **`CreateProxyRequest` and `CopyHeaders`**: Facilitate the creation and modification of proxy requests.
-- **`SendProxyRequestAndHandleResponse`**: Sends the proxy request and processes the response, setting CORS headers and managing the response body.
-
-## Contributing
-
-Contributions are welcome! If you have suggestions or improvements, feel free to submit a pull request or open an issue. Make sure to follow the project's coding standards and test thoroughly.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-TL;DR: You can do whatever you want with this code, but you must include the original license and copyright notice.
+The **SomTodayProxy** is a specialized tool designed to facilitate user authentication with SomToday by acting as an intermediary. It manages user sessions, proxies requests, and handles OAuth2 tokens in a streamlined manner, making it easier for developers to integrate with the SomToday API without directly handling the intricacies of the authentication process. The proxy also ensures that all necessary configurations and headers are appropriately managed, providing a robust solution for applications requiring SomToday authentication.
