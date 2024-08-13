@@ -14,17 +14,13 @@ namespace SomtodayProxy
         Ik zou persoonlijk nooit op deze manier zijn gekomen, dus nogmaals bedankt!
      */
     
-    /*
-     
-     
-     
-     */
-    
     public class Startup
     {
         //keep a list of every current user trying to authenticate
         List<UserAuthenticatingModel> users = new();
 
+        private static string version = "0.1";
+        
         private string mainPage = "SomToday App Proxy (STAP) is running!\n" +
                                   "\n" +
                                   "Dankjewel Micha (https://micha.ga & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!\n" +
@@ -32,8 +28,9 @@ namespace SomtodayProxy
                                   "Op deze manier kunnen we de authenticatie van SomToday tegen hun gebruiken en de responses (voornamelijk de token) opvangen.\n" +
                                   "Ik zou persoonlijk nooit op deze manier zijn gekomen, dus nogmaals bedankt!\n" +
                                   "\n" +
-                                  "Wil je een login sessie aanvragen? Gebruik dan /requestUrl?user=gebruiker1234&callbackUrl=https://example.com/callback\n" +
-                                  "Documentatie komt spoedig!";
+                                  "Wil je een login sessie aanvragen? Gebruik dan /requestUrl\n" +
+                                  "\n" + 
+                                 $"Current verion: {version}";
             
                           
         public void ConfigureServices(IServiceCollection services)
@@ -61,9 +58,10 @@ namespace SomtodayProxy
 
         private void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/", async context => await context.Response.WriteAsync("SomToday Proxy is running!\n\nDankjewel Micha (https://micha.ga & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!\nDit is een proxy die requests doorstuurt naar SomToday en de responses terugstuurt naar de client.\nOp deze manier kunnen we de authenticatie van SomToday tegen hun gebruiken en de responses (voornamelijk de token) opvangen.\nIk zou persoonlijk nooit op deze manier zijn gekomen, dus nogmaals bedankt!"));
-            endpoints.MapGet("/.well-known/openid-configuration", HandleOpenIdConfiguration);
+            endpoints.MapGet("/", async context => await context.Response.WriteAsync(mainPage));
+            //endpoints.MapGet("/.well-known/openid-configuration", HandleOpenIdConfiguration);
             endpoints.MapGet("/requestUrl", RequestLoginUrl);
+            endpoints.MapGet("/Docs", async context => context.Response.Redirect("https://github.com/matttersteege/SomtodayProxy"));
             endpoints.MapFallback(HandleProxyRequest);
         }
 
@@ -81,7 +79,11 @@ namespace SomtodayProxy
             if (!context.Request.Query.ContainsKey("user") || !context.Request.Query.ContainsKey("callbackUrl"))
             {
                 context.Response.StatusCode = 400;
-                await context.Response.WriteAsync("Missing parameters user= and/or callbackUrl=");
+                await context.Response.WriteAsync("Missing parameter(s)\n" +
+                                                  "- user=<username> this is the user you want to authenticate, this can be any value and is not used by STAP in any way, it is just a value i send back to you so you know who was authenticated\n" +
+                                                  "- callbackUrl=<callback url> this is the url where the token will be send to, this can be any url you want, it is not validated by STAP. The token will be send as a POST request with a JSON body\n" +
+                                                  "\n" +
+                                                  "Check the docs: /Docs for more information");
                 return;
             }
             
@@ -130,6 +132,12 @@ namespace SomtodayProxy
             if (request.Path == "/oauth2/authorize")
             {
                 context.Response.Redirect($"https://{targetHost}{request.Path}{request.QueryString}");
+                return;
+            }
+            
+            if (request.Path == "/.well-known/openid-configuration")
+            {
+                await ServeOpenIdConfiguration(context);
                 return;
             }
 
@@ -273,10 +281,6 @@ namespace SomtodayProxy
         .ConfigureWebHostDefaults(webBuilder =>
         {
             webBuilder.UseStartup<Startup>();
-            #if DEBUG
-            webBuilder.UseUrls("https://localhost:5001", "http://localhost:5000");
-            webBuilder.UseUrls("https://192.168.178.22:5001", "http://192.168.178.22:5000");
-            #endif
         });
     }
     
