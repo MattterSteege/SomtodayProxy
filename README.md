@@ -184,4 +184,4 @@ Host de bestanden op een webserver zoals Nginx of IIS. Zorg ervoor dat de server
 ## Auteurs
 
 - [@Kronk](https://www.github.com/matttersteege) - Ontwikkelaar van deze repo en deels verbeteren van originele idee
-- [@Micha](https://github.com/luxkatana) - Oorspronklijk vinder van deze autheticatie methode
+- [@Micha](https://github.com/FurriousFox) - Oorspronklijk vinder van deze autheticatie methode
