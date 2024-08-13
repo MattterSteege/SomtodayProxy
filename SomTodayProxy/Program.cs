@@ -211,6 +211,7 @@ namespace SomtodayProxy
                 var client = new HttpClient();
                 var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
                 await client.PostAsync(loginRequestModel.callbackUrl, content);
+                return;
             }
             
             //send the model to the callbackUrl
