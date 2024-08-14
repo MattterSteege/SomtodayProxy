@@ -122,6 +122,7 @@ namespace SomtodayProxy
             if (request.ContentLength > 0)
             {
                 await HandleRequestWithBody(context, request, proxyRequest, vanityUrl);
+                return;
             }
             else if (request.Headers.ContainsKey("Authorization"))
             {
@@ -169,8 +170,11 @@ namespace SomtodayProxy
         {
             using var reader = new StreamReader(request.Body);
             var body = await reader.ReadToEndAsync();
-            proxyRequest.Content = new StringContent(body, Encoding.UTF8);
-            proxyRequest.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(request.Headers["Content-Type"].ToString());
+            if (request.Path != "/oauth2/token") {
+                proxyRequest.Content = new StringContent(body, Encoding.UTF8);
+                proxyRequest.Content.Headers.ContentType =
+                MediaTypeHeaderValue.Parse(request.Headers["Content-Type"].ToString());
+            }
 
             if (request.Path == "/oauth2/token")
             {
@@ -211,13 +215,19 @@ namespace SomtodayProxy
                 var client = new HttpClient();
                 var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
                 await client.PostAsync(loginRequestModel.callbackUrl, content);
-                return;
             }
+            else
+            {
+                //send the model to the callbackUrl
+                var client2 = new HttpClient();
+                var content2 = new StringContent("{\"error\": \"Failed to authenticate user, you can discard the login attempt at you side, I sure as hell deleted it on my side\"}");
+                await client2.PostAsync(loginRequestModel.callbackUrl, content2);
+            }
+
+            model.code = "";
             
-            //send the model to the callbackUrl
-            var client2 = new HttpClient();
-            var content2 = new StringContent("{\"error\": \"Failed to authenticate user, you can discard the login attempt at you side, I sure as hell deleted it on my side\"}");
-            await client2.PostAsync(loginRequestModel.callbackUrl, content2);
+            context.Response.StatusCode = 200;
+            await context.Response.WriteAsync(JsonSerializer.Serialize(model));
         }
 
         private async Task SendProxyRequestAndHandleResponse(HttpContext context, HttpClient httpClient, HttpRequestMessage proxyRequest)
@@ -264,9 +274,12 @@ namespace SomtodayProxy
 
         private async Task ServeOpenIdConfiguration(HttpContext context)
         {
-            string content = await File.ReadAllTextAsync("wwwroot/.well-known/openid-configuration.json");
+            //get the file from https://inloggen.somtoday.nl/.well-known/openid-configuration
+            var httpClient = context.RequestServices.GetRequiredService<IHttpClientFactory>().CreateClient();
+            var response = await httpClient.GetAsync("https://inloggen.somtoday.nl/.well-known/openid-configuration");
+            var responseBody = await response.Content.ReadAsStringAsync();
             context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(content);
+            await context.Response.WriteAsync(responseBody);
         }
     }
 
