@@ -8,7 +8,7 @@ namespace SomtodayProxy
 {
     
     /*
-        Dankjewel Micha (micha.ga & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!
+        Dankjewel Micha (argv.nl & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!
         Dit is een proxy die requests doorstuurt naar SomToday en de responses terugstuurt naar de client.
         Op deze manier kunnen we de authenticatie van SomToday tegen hun gebruiken en de responses (voornamelijk de token) opvangen.
         Ik zou persoonlijk nooit op deze manier zijn gekomen, dus nogmaals bedankt!
@@ -23,7 +23,7 @@ namespace SomtodayProxy
         
         private string mainPage = "SomToday App Proxy (STAP) is running!\n" +
                                   "\n" +
-                                  "Dankjewel Micha (https://micha.ga & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!\n" +
+                                  "Dankjewel Micha (https://argv.nl & https://github.com/FurriousFox) voor het vinden van de originele manier om mensen the authenticaten met SomToday!\n" +
                                   "Dit is een proxy die requests doorstuurt naar SomToday en de responses terugstuurt naar de client.\n" +
                                   "Op deze manier kunnen we de authenticatie van SomToday tegen hun gebruiken en de responses (voornamelijk de token) opvangen.\n" +
                                   "Ik zou persoonlijk nooit op deze manier zijn gekomen, dus nogmaals bedankt!\n" +
