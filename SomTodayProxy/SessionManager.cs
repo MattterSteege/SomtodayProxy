@@ -28,7 +28,7 @@ namespace SomtodayProxy
             {
                 User = user,
                 VanityUrl = GenerateUniqueVanityUrl(),
-                Expires = DateTime.UtcNow.AddMinutes(5),
+                Expires = DateTime.UtcNow.AddMinutes(Constants.SessionDuration),
                 CallbackUrl = callbackUrl
             };
 

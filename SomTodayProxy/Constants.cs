@@ -22,4 +22,6 @@ Current version: {Version}";
 Check the docs: /Docs for more information";
     
     public static string BaseVanitUrl = "somtoday.kronk.tech/";
+    
+    public static int SessionDuration = 10; // in minutes
 }
