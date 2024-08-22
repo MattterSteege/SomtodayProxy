@@ -57,6 +57,11 @@ namespace SomtodayProxy
 
             return vanityUrl;
         }
+        
+        public int GetSessionCount()
+        {
+            return _sessions.Count;
+        }
 
         private void CleanupExpiredSessions(object state)
         {
