@@ -43,8 +43,9 @@ namespace SomtodayProxy
 
         private void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/", async context => await context.Response.WriteAsync(Constants.MainPage));
+            endpoints.MapGet("/", async context => await context.Response.WriteAsync(Constants.MainPage + "\n\n" + context.RequestServices.GetRequiredService<SessionManager>().GetSessionCount() + " active sessions"));
             endpoints.MapGet("/requestUrl", RequestLoginUrl);
+            endpoints.MapGet("/docs", RedirectToDocs);
             endpoints.MapGet("/{vanityUrl}/oauth2/logout", HandleLogoutRequest);
             endpoints.MapFallback(HandleProxyRequest);
         }
@@ -53,6 +54,11 @@ namespace SomtodayProxy
         {
             var proxyHandler = context.RequestServices.GetRequiredService<ProxyHandler>();
             await proxyHandler.RequestLoginUrl(context);
+        }
+        
+        private async Task RedirectToDocs(HttpContext context)
+        {
+            context.Response.Redirect("https://github.com/matttersteege/SomtodayProxy");
         }
 
         private async Task HandleProxyRequest(HttpContext context)
