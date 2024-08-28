@@ -6,16 +6,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["SomtodayProxy/SomtodayProxy.csproj", "SomtodayProxy/"]
-RUN dotnet restore "SomtodayProxy/SomtodayProxy.csproj"
+COPY ["SomTodayProxy/SomTodayProxy.csproj", "SomTodayProxy/"]
+RUN dotnet restore "SomTodayProxy/SomTodayProxy.csproj"
 COPY . .
-WORKDIR "/src/SomtodayProxy"
-RUN dotnet build "SomtodayProxy.csproj" -c Release -o /app/build
+WORKDIR "/src/SomTodayProxy"
+RUN dotnet build "SomTodayProxy.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "SomtodayProxy.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SomTodayProxy.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SomtodayProxy.dll"]
+ENTRYPOINT ["dotnet", "SomTodayProxy.dll"]
