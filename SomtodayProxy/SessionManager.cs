@@ -52,7 +52,7 @@ namespace SomtodayProxy
             string vanityUrl;
             do
             {
-                vanityUrl = Constants.BaseVanitUrl + new Random().Next(0, 9999).ToString("D4");
+                vanityUrl = Constants.BaseVanitUrl + new Random().Next(0, (int) Math.Pow(10, Math.Max((int) Math.Log10(_sessions.Count * 1.1) + 1, 4)) - 1).ToString($ "D{Math.Max((int)Math.Log10(_sessions.Count*1.1) + 1, 4)}");
             } while (_sessions.ContainsKey(vanityUrl));
 
             return vanityUrl;
