@@ -14,7 +14,7 @@ namespace SomtodayProxy
             _cleanupTimer = new Timer(CleanupExpiredSessions!, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
         }
 
-        public UserSession? CreateSession(string user, string callbackUrl)
+        public UserSession? CreateSession(string user, string callbackUrl, bool spoonFeed = false)
         {
             if (user == null) return null;
             if (callbackUrl == null) return null;
@@ -29,7 +29,8 @@ namespace SomtodayProxy
                 User = user,
                 VanityUrl = GenerateUniqueVanityUrl(),
                 Expires = DateTime.UtcNow.AddMinutes(Constants.SessionDuration),
-                CallbackUrl = callbackUrl
+                CallbackUrl = callbackUrl,
+                SpoonFeed = spoonFeed
             };
 
             _sessions.TryAdd(session.VanityUrl, session);
@@ -52,7 +53,7 @@ namespace SomtodayProxy
             string vanityUrl;
             do
             {
-                vanityUrl = Constants.BaseVanitUrl + new Random().Next(0, (int) Math.Pow(10, Math.Max((int) Math.Log10(_sessions.Count * 1.1) + 1, 4)) - 1).ToString($ "D{Math.Max((int)Math.Log10(_sessions.Count*1.1) + 1, 4)}");
+                vanityUrl = Constants.BaseVanitUrl + new Random().Next(0, (int) Math.Pow(10, Math.Max((int) Math.Log10(_sessions.Count * 1.1) + 1, 4)) - 1).ToString($"D{Math.Max((int)Math.Log10(_sessions.Count*1.1) + 1, 4)}");
             } while (_sessions.ContainsKey(vanityUrl));
 
             return vanityUrl;
@@ -91,5 +92,6 @@ namespace SomtodayProxy
         public string VanityUrl { get; set; }
         public DateTime Expires { get; set; }
         public string CallbackUrl { get; set; }
+        public bool SpoonFeed { get; set; }
     }
 }
