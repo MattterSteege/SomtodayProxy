@@ -8,7 +8,6 @@ Dit project stelt ontwikkelaars in staat om deze tokens te onderscheppen door si
 
 Ook Zorgt deze proxy ervoor dat de data van jouw gebruikers veilig blijft. Het stuurt een code terug die je direct bij Somtoday's API kunt inwisselen voor een access- en refresh_token. Als deze code niet werkt, dan weet je dat er gerommeld is in de proxy, werkt de code wel, dan kan (mocht iemand die code óók opgeslagen hebben) die code niet meer gebruiken.
 
-Ja er is een door mij gehoste versie op https://somtoday.kronk.tech, die gebruikt mag worden, maar ik kan 100% uptime niet garanderen én misbruik wordt niet gewaardeerd.
 ## Belangrijk
 
 De onderliggende gedacht van dit project is te danken aan Micha ([argv.nl](https://argv.nl), [/FurriousFox](https://github.com/FurriousFox)). Dus dankjewel Micha voor het vinden van deze manier om mensen the authenticaten met SomToday!
