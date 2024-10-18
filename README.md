@@ -1,3 +1,7 @@
+# !!Disclaimer¡¡
+
+Deze methode om Somtoday-tokens op te vragen is niet officieel en wordt niet ondersteund door Somtoday. Ik heb geen enkele connectie met Somtoday, en het gebruik van deze methode gebeurt volledig op eigen risico. Het is belangrijk om deze techniek alleen te gebruiken om tokens voor je eigen account op te vragen en niet voor andere gebruikers die mogelijk niet op de hoogte zijn van de risico’s. Eventuele gevolgen, zoals beveiligingsproblemen of storingen, zijn **jouw** probleem en verantwoordelijkheid.
+
 ## Overzicht
 
 **SomToday App Proxy (STAP)** is een proxyserver die is ontworpen om authenticatieverzoeken naar Somtoday te faciliteren en de ontvangen tokens te onderscheppen en door te sturen naar een opgegeven callback-URL. Dit project is ontstaan uit de behoefte aan een betere manier om toegangstokens en refresh tokens te verkrijgen van Somtoday, aangezien er tot nu toe geen effectieve methode bestond om dit te doen zonder de officiële procedures te volgen.
@@ -153,7 +157,6 @@ Je hebt nu een originele Somtoday token én refresh token die 60 dagen geldig bl
 
 Ben je benieuwd hoe je deze token kunt gebruiken, kijk dan op de onoficiele docs [/elisaado/somtoday-api-docs](https://github.com/elisaado/somtoday-api-docs), waar ik overigens maintainer van ben :)
 ### Installeren
-To install the ASP.NET Core Dynamic Page Loading System, follow these steps:
 
 1. Clone de repository naar je lokale machine:
 
