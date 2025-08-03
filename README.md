@@ -1,3 +1,7 @@
+# Huidige status
+
+Deze methode lijkt niet meer te werken zoals gedocumenteerd. Het is heel jammer, maar door een update aan het inlogsysteem van SOMtoday worden de requests niet doorgestuurd naar de proxy 🫤. Ik heb geen intentie om deze proxy te gaan herontwerpen, mede ook omdat ik geen SOMtoday toegang meer heb komende schooljaar (25-26).
+
 # !!Disclaimer¡¡
 
 Deze methode om Somtoday-tokens op te vragen is niet officieel en wordt niet ondersteund door Somtoday. Ik heb geen enkele connectie met Somtoday, en het gebruik van deze methode gebeurt volledig op eigen risico. Het is belangrijk om deze techniek alleen te gebruiken om tokens voor je eigen account op te vragen en niet voor andere gebruikers die mogelijk niet op de hoogte zijn van de risico’s. Eventuele gevolgen, zoals beveiligingsproblemen of storingen, zijn **jouw** probleem en verantwoordelijkheid.
